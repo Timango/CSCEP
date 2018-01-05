@@ -23,13 +23,7 @@ namespace Dauros.Timango.CSCEP
         public String ApiUrl { get; set; }
 
         #region Derived
-        public String Name
-        {
-            get
-            {
-                return this.GetType().Name;
-            }
-        }
+        public String Name { get { return this.GetType().Name; }}
         #endregion
         #endregion
         #region Constructors
