@@ -51,10 +51,9 @@ namespace Dauros.Timango.CSCEP
 
         private long _lastNonce = 0;
         private Object _nonceLock = new Object();
-        protected Int64 GetNonce()
+        protected Int64 GenerateNonce()
         {
-            // generate a 64 bit nonce using a timestamp
-            Int64 nonce = DateTime.Now.Ticks;
+            Int64 nonce = DateTime.UtcNow.Ticks;
             lock (_nonceLock)
             {
                 if (_lastNonce >= nonce)
