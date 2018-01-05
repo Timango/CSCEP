@@ -22,6 +22,12 @@ namespace Dauros.Timango.CSCEP
             return dtDateTime;
         }
 
+        public static string ToHexString(this byte[] ba)
+        {
+            string hex = BitConverter.ToString(ba);
+            return hex.Replace("-", "");
+        }
+
         public static Double Median(this IEnumerable<double> set)
         {
             if (set.Count() == 0)

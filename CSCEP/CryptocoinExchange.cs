@@ -40,9 +40,7 @@ namespace Dauros.Timango.CSCEP
         #endregion
 
         #region Helper methods
-
-        #region Cryptographic
-
+               
         private long _lastNonce = 0;
         private Object _nonceLock = new Object();
         protected Int64 GenerateNonce()
@@ -59,6 +57,7 @@ namespace Dauros.Timango.CSCEP
             }
         }
 
+        #region Cryptographic
         protected byte[] HashAsSHA256(byte[] source)
         {
             using (SHA256 hash = SHA256.Create())
@@ -94,12 +93,7 @@ namespace Dauros.Timango.CSCEP
                 return result;
             }
         }
-
-        public static string ByteArrayToHexString(byte[] ba)
-        {
-            string hex = BitConverter.ToString(ba);
-            return hex.Replace("-", "");
-        }
+        
         #endregion
         #endregion
 
