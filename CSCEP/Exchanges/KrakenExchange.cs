@@ -14,7 +14,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
 {
     public class KrakenExchange : CryptocoinExchange
     {
-        
+
 
         #region Constructors
         public KrakenExchange() : base() { ApiUrl = "https://api.kraken.com"; }
@@ -171,7 +171,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>array of trade balance info</returns>
         public async Task<JObject> API_GetTradeBalanceAsync(string aclass = null,
-            string asset = null, 
+            string asset = null,
             AccountKeys keys = null)
         {
             var data = new Dictionary<String, String>();
@@ -197,11 +197,23 @@ namespace Dauros.Timango.CSCEP.Exchanges
             return await CallPrivateKrakenApiAsync("OpenOrders", keys, data);
         }
 
+        /// <summary>
+        /// Returns result set of closed orders matching the provided criteria.
+        /// </summary>
+        /// <param name="trades">whether or not to include trades in output (optional.  default = false)</param>
+        /// <param name="userref">restrict results to given user reference id (optional)</param>
+        /// <param name="start">starting unix timestamp or order tx id of results (optional.  exclusive)</param>
+        /// <param name="end">ending unix timestamp or order tx id of results (optional.  inclusive)</param>
+        /// <param name="ofs">skip the N first rows in a result set before starting to return any rows </param>
+        /// <param name="closetime">which time to use (optional)    open    close    both (default)</param>
+        /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
+        /// <returns>array of order info</returns>
         public async Task<JObject> API_GetClosedOrdersAsync(
             Boolean? trades = null,
             String userref = null,
             DateTime? start = null,
             DateTime? end = null,
+            Int32? ofs = null, 
             String closetime = null,
             AccountKeys keys = null)
         {
@@ -210,11 +222,32 @@ namespace Dauros.Timango.CSCEP.Exchanges
             data.AddOptional("userref", userref);
             data.AddOptional("start", start.HasValue ? start.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             data.AddOptional("end", end.HasValue ? end.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
-            data.AddOptional("ofs", 1);
+            data.AddOptional("ofs",ofs);
             data.AddOptional("closetime", closetime);
             return await CallPrivateKrakenApiAsync("ClosedOrders", keys, data);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="txid">list of transaction ids to query info about (20 maximum)</param>
+        /// <param name="trades">whether or not to include trades in output (optional.  default = false)</param>
+        /// <param name="userref">restrict results to given user reference id (optional)</param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+        public async Task<JObject> API_QueryOrdersInfoAsync(
+            IEnumerable<String> txid,
+            Boolean? trades = null,
+            String userref = null,
+            AccountKeys keys = null)
+        {
+            var data = new Dictionary<String, String>();
+            data.AddOptional("trades", trades);
+            data.AddOptional("userref", userref);
+            data.AddOptional("txid", txid);
+            return await CallPrivateKrakenApiAsync("QueryOrders", keys, data);
+        }
+        
 
         #endregion
 
@@ -267,15 +300,8 @@ namespace Dauros.Timango.CSCEP.Exchanges
                 }
             }
 
-            try
-            {
-                var fullResult = await base.CallApiAsync<JObject>(webRequest);
-                return fullResult;
-            }
-            finally
-            {
-
-            }
+            var fullResult = await base.CallApiAsync<JObject>(webRequest);
+            return fullResult;
         }
 
         private async Task<JObject> CallPublicKrakenAPIAsync
