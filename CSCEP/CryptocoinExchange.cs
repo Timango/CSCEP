@@ -16,10 +16,15 @@ namespace Dauros.Timango.CSCEP
     [DebuggerDisplay("{Name}")]
     public abstract class CryptocoinExchange
     {
+        #region Delegate
+        protected Func<Int64> ObtainNonce;
+        #endregion
+
+
         #region Class Properties
         public CultureInfo ExchangeCulture { get; protected set; }
         public Encoding ExchangeEncoding { get; protected set; }
-        public AccountKeys DefaultAccountKeys { get; set; }
+        public AccountKeys DefaultAccountKeys { get; private set; }
         public String ApiUrl { get; set; }
 
         #region Derived
@@ -30,7 +35,9 @@ namespace Dauros.Timango.CSCEP
         public CryptocoinExchange()
         {
             ExchangeEncoding = Encoding.UTF8;
-            ExchangeCulture = new CultureInfo("en-US");
+            ExchangeCulture = CultureInfo.InvariantCulture;
+            if (ObtainNonce == null)
+                ObtainNonce = GenerateDefaultNonce;
         }
 
         public CryptocoinExchange(String apiKey, String secretKey) : this()
@@ -43,7 +50,7 @@ namespace Dauros.Timango.CSCEP
                
         private long _lastNonce = 0;
         private Object _nonceLock = new Object();
-        protected Int64 GenerateNonce()
+        protected Int64 GenerateDefaultNonce()
         {
             Int64 nonce = DateTime.UtcNow.Ticks;
             lock (_nonceLock)

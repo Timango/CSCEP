@@ -14,9 +14,11 @@ namespace Dauros.Timango.CSCEP.Exchanges
 {
     public class KrakenExchange : CryptocoinExchange
     {
+        
+
         #region Constructors
         public KrakenExchange() : base() { ApiUrl = "https://api.kraken.com"; }
-        public KrakenExchange(String apiKey, String secretKey) : base(apiKey, secretKey) { }
+        public KrakenExchange(String apiKey, String secretKey) : base(apiKey, secretKey) { ApiUrl = "https://api.kraken.com"; }
         #endregion
 
         #region API Calls
@@ -43,18 +45,9 @@ namespace Dauros.Timango.CSCEP.Exchanges
         public Task<JObject> API_GetAssetInfoAsync(IEnumerable<String> assets = null, String info = null, String assetClass = null)
         {
             var data = new Dictionary<String, String>();
-            if (!String.IsNullOrWhiteSpace(info)) data.Add("info", info);
-            if (!String.IsNullOrWhiteSpace(assetClass)) data.Add("aclass", assetClass);
-            if (assets != null && assets.Count() != 0)
-            {
-                StringBuilder list = new StringBuilder();
-                foreach (var item in assets)
-                {
-                    list.AppendFormat("{0},", item);
-                }
-                list.Length--;
-                data.Add("asset", list.ToString());
-            }
+            data.AddOptional("info", info);
+            data.AddOptional("aclass", assetClass);
+            data.AddOptional("asset", assets);
             return CallPublicKrakenAPIAsync("Assets", data);
         }
 
@@ -72,17 +65,8 @@ namespace Dauros.Timango.CSCEP.Exchanges
         public Task<JObject> API_GetTradableAssetPairsAsync(String info = null, IEnumerable<String> pairs = null)
         {
             var data = new Dictionary<String, String>();
-            if (!String.IsNullOrWhiteSpace(info)) data.Add("info", info);
-            if (pairs != null)
-            {
-                StringBuilder list = new StringBuilder();
-                foreach (var item in pairs)
-                {
-                    list.AppendFormat("{0},", item);
-                }
-                list.Length--;
-                data.Add("pair", list.ToString());
-            }
+            data.AddOptional("info", info);
+            data.AddOptional("pair", pairs);
             return CallPublicKrakenAPIAsync("AssetPairs", data);
         }
 
@@ -95,16 +79,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         public Task<JObject> API_GetTickerInformationAsync(IEnumerable<String> pairs)
         {
             var data = new Dictionary<String, String>();
-            if (pairs != null)
-            {
-                StringBuilder list = new StringBuilder();
-                foreach (var item in pairs)
-                {
-                    list.AppendFormat("{0},", item);
-                }
-                list.Length--;
-                data.Add("pair", list.ToString());
-            }
+            data.AddOptional("pair", pairs);
             return CallPublicKrakenAPIAsync("Ticker");
         }
 
@@ -120,8 +95,9 @@ namespace Dauros.Timango.CSCEP.Exchanges
         {
             var data = new Dictionary<String, String>();
             data.Add("pair", pair);
-            if (interval.HasValue) data.Add("interval", interval.Value.ToString(this.ExchangeCulture));
-            if (since.HasValue) data.Add("since", since.Value.ToUnixTimestamp().ToString(this.ExchangeCulture));
+            data.AddOptional("interval", interval, this.ExchangeCulture);
+            Double? sinceUnix = since.HasValue ? since.Value.ToUnixTimestamp() : (Double?)null;
+            data.AddOptional("since", sinceUnix, this.ExchangeCulture);
             return CallPublicKrakenAPIAsync("OHLC", data);
         }
 
@@ -135,7 +111,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         {
             var data = new Dictionary<String, String>();
             data.Add("pair", pair);
-            if (count.HasValue) data.Add("count", count.Value.ToString(this.ExchangeCulture));
+            data.AddOptional("count", count, this.ExchangeCulture);
             return CallPublicKrakenAPIAsync("Depth", data);
         }
 
@@ -149,7 +125,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         {
             var data = new Dictionary<String, String>();
             data.Add("pair", pair);
-            if (since.HasValue) data.Add("since", since.Value.ToUnixTimestamp().ToString(this.ExchangeCulture));
+            data.AddOptional("since", since.HasValue ? since.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             return CallPublicKrakenAPIAsync("Trades", data);
         }
 
@@ -164,7 +140,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         {
             var data = new Dictionary<String, String>();
             data.Add("pair", pair);
-            if (since.HasValue) data.Add("since", since.Value.ToUnixTimestamp().ToString(this.ExchangeCulture));
+            data.AddOptional("since", since.HasValue ? since.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             return CallPublicKrakenAPIAsync("Spread", data);
         }
 
@@ -175,6 +151,71 @@ namespace Dauros.Timango.CSCEP.Exchanges
 
         #region Private user data
 
+
+
+        /// <summary>
+        /// Retrieves account balance for provided account.
+        /// </summary>
+        /// <param name="keys">The account information. Uses this.DefaultAccountKeys when null.</param>
+        /// <returns>array of asset names and balance amount</returns>
+        public async Task<JObject> API_GetAccountBalance(AccountKeys keys = null)
+        {
+            return await CallPrivateKrakenApiAsync("Balance", keys);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="aclass">asset class (optional): currency (default)</param>
+        /// <param name="asset">base asset used to determine balance (default = ZUSD)</param>
+        /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
+        /// <returns>array of trade balance info</returns>
+        public async Task<JObject> API_GetTradeBalanceAsync(string aclass = null,
+            string asset = null, 
+            AccountKeys keys = null)
+        {
+            var data = new Dictionary<String, String>();
+            data.AddOptional("aclass", aclass);
+            data.AddOptional("asset", asset);
+            return await CallPrivateKrakenApiAsync("TradeBalance", keys, data);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="trades">whether or not to include trades in output (optional.  default = false)</param>
+        /// <param name="userref">restrict results to given user reference id (optional)</param>
+        /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
+        /// <returns>array of order info in open array with txid as the key</returns>
+        public async Task<JObject> API_GetOpenOrdersAsync(Boolean? trades = null,
+            String userref = null,
+            AccountKeys keys = null)
+        {
+            var data = new Dictionary<String, String>();
+            data.AddOptional("trades", trades);
+            data.AddOptional("userref", userref);
+            return await CallPrivateKrakenApiAsync("OpenOrders", keys, data);
+        }
+
+        public async Task<JObject> API_GetClosedOrdersAsync(
+            Boolean? trades = null,
+            String userref = null,
+            DateTime? start = null,
+            DateTime? end = null,
+            String closetime = null,
+            AccountKeys keys = null)
+        {
+            var data = new Dictionary<String, String>();
+            data.AddOptional("trades", trades);
+            data.AddOptional("userref", userref);
+            data.AddOptional("start", start.HasValue ? start.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
+            data.AddOptional("end", end.HasValue ? end.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
+            data.AddOptional("ofs", 1);
+            data.AddOptional("closetime", closetime);
+            return await CallPrivateKrakenApiAsync("ClosedOrders", keys, data);
+        }
+
+
         #endregion
 
         #region Private user trading
@@ -184,12 +225,12 @@ namespace Dauros.Timango.CSCEP.Exchanges
         #region Core calls
 
         private async Task<JObject> CallPrivateKrakenApiAsync
-            (string method, AccountKeys keys = null, Dictionary<String, String> data = null)
+            (string function, AccountKeys keys = null, Dictionary<String, String> data = null)
         {
             var account = keys ?? DefaultAccountKeys;
             if (account == null) throw new ArgumentNullException("accountKeys", "DefaultAccountKeys is not set and no keys were provided.");
             Stream reqStream = null;
-            string path = string.Format("/0/private/{0}", method);
+            string path = string.Format("/0/private/{0}", function);
             string address = ApiUrl + path;
             HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(address);
             webRequest.ContentType = "application/x-www-form-urlencoded";
@@ -197,7 +238,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             webRequest.Headers.Add("API-Key", account.ApiKey);
             reqStream = await webRequest.GetRequestStreamAsync();
 
-            var nonce = GetNonce();
+            var nonce = ObtainNonce.Invoke();
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("nonce={0}", nonce);
             if (data != null)
