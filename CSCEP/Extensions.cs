@@ -11,16 +11,16 @@ namespace Dauros.Timango.CSCEP
     {
         public static Double ToUnixTimestamp(this DateTime time)
         {
-            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            var timeDiff = time - dtDateTime;
+            var unixStart = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            var timeDiff = time - unixStart;
             return (double)timeDiff.TotalSeconds;
         }
 
         public static DateTime AsUnixTimestamp(this Double unixTimeStamp)
         {
-            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-            return dtDateTime;
+            var unixStart = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            unixStart = unixStart.AddSeconds(unixTimeStamp).ToLocalTime();
+            return unixStart;
         }
 
         public static string ToHexString(this byte[] ba)
@@ -44,6 +44,15 @@ namespace Dauros.Timango.CSCEP
             }
         }
 
+        public static void AddOptional(this Dictionary<String, String> dic, String key, Decimal? value, CultureInfo culture = null)
+        {
+            if (value.HasValue)
+            {
+                culture = culture ?? CultureInfo.InvariantCulture;
+                dic.Add(key, value.Value.ToString(culture));
+            }
+        }
+
         public static void AddOptional(this Dictionary<String, String> dic, String key, Int32? value, CultureInfo culture = null)
         {
             if (value.HasValue)
@@ -53,20 +62,15 @@ namespace Dauros.Timango.CSCEP
             }
         }
 
-        public static void AddOptional(this Dictionary<String, String> dic, String key, IEnumerable<String> value)
+        public static void AddOptional(this Dictionary<String, String> dic, String key, Int64? value, CultureInfo culture = null)
         {
-            if (value != null && value.Count() != 0)
+            if (value.HasValue)
             {
-                StringBuilder list = new StringBuilder();
-                foreach (var item in value)
-                {
-                    list.AppendFormat("{0},", item);
-                }
-                list.Length--;
-                dic.Add(key, list.ToString());
+                culture = culture ?? CultureInfo.InvariantCulture;
+                dic.Add(key, value.Value.ToString(culture));
             }
         }
-
+        
         public static void AddOptional(this Dictionary<String, String> dic, String key, Boolean? value)
         {
             if (value.HasValue)
