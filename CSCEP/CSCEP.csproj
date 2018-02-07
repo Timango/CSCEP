@@ -50,6 +50,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CryptocoinExchange.cs" />
+    <Compile Include="Exchanges\KrakenExchange.cs" />
     <Compile Include="Extensions.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -65,7 +66,6 @@
   <ItemGroup>
     <Folder Include="bin\Debug\" />
     <Folder Include="bin\Release\" />
-    <Folder Include="Exchanges\" />
     <Folder Include="obj\Debug\TempPE\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
