@@ -158,9 +158,9 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// </summary>
         /// <param name="keys">The account information. Uses this.DefaultAccountKeys when null.</param>
         /// <returns>array of asset names and balance amount</returns>
-        public async Task<JObject> API_GetAccountBalance(AccountKeys keys = null)
+        public Task<JObject> API_GetAccountBalanceAsync(AccountKeys keys = null)
         {
-            return await CallPrivateKrakenApiAsync("Balance", keys);
+            return CallPrivateKrakenApiAsync("Balance", keys);
         }
 
         /// <summary>
@@ -170,14 +170,14 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="asset">base asset used to determine balance (default = ZUSD)</param>
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>array of trade balance info</returns>
-        public async Task<JObject> API_GetTradeBalanceAsync(string aclass = null,
+        public Task<JObject> API_GetTradeBalanceAsync(string aclass = null,
             string asset = null,
             AccountKeys keys = null)
         {
             var data = new Dictionary<String, String>();
             data.AddOptional("aclass", aclass);
             data.AddOptional("asset", asset);
-            return await CallPrivateKrakenApiAsync("TradeBalance", keys, data);
+            return CallPrivateKrakenApiAsync("TradeBalance", keys, data);
         }
 
         /// <summary>
@@ -188,14 +188,14 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>array of order info in open array with txid as the key</returns>
         /// <remarks>Unless otherwise stated, costs, fees, prices, and volumes are in the asset pair's scale, not the currency's scale. For example, if the asset pair uses a lot size that has a scale of 8, the volume will use a scale of 8, even if the currency it represents only has a scale of 2. Similarly, if the asset pair's pricing scale is 5, the scale will remain as 5, even if the underlying currency has a scale of 8.</remarks>
-        public async Task<JObject> API_GetOpenOrdersAsync(Boolean? trades = null,
+        public Task<JObject> API_GetOpenOrdersAsync(Boolean? trades = null,
             Int32? userref = null,
             AccountKeys keys = null)
         {
             var data = new Dictionary<String, String>();
             data.AddOptional("trades", trades);
             data.AddOptional("userref", userref);
-            return await CallPrivateKrakenApiAsync("OpenOrders", keys, data);
+            return CallPrivateKrakenApiAsync("OpenOrders", keys, data);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>array of order info</returns>
         /// <remarks>Times given by order tx ids are more accurate than unix timestamps. If an order tx id is given for the time, the order's open time is used</remarks>
-        public async Task<JObject> API_GetClosedOrdersAsync(
+        public Task<JObject> API_GetClosedOrdersAsync(
             Boolean? trades = null,
             Int32? userref = null,
             DateTime? start = null,
@@ -226,7 +226,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             data.AddOptional("end", end.HasValue ? end.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             data.AddOptional("ofs", ofs);
             data.AddOptional("closetime", closetime);
-            return await CallPrivateKrakenApiAsync("ClosedOrders", keys, data);
+            return CallPrivateKrakenApiAsync("ClosedOrders", keys, data);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="userref">restrict results to given user reference id (optional)</param>
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>associative array of orders info</returns>
-        public async Task<JObject> API_QueryOrdersInfoAsync(
+        public Task<JObject> API_QueryOrdersInfoAsync(
             IEnumerable<String> txid,
             Boolean? trades = null,
             Int32? userref = null,
@@ -247,7 +247,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             data.AddOptional("trades", trades);
             data.AddOptional("userref", userref);
             data.AddOptional("txid", ConcatString(txid));
-            return await CallPrivateKrakenApiAsync("QueryOrders", keys, data);
+            return CallPrivateKrakenApiAsync("QueryOrders", keys, data);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <returns>array of trade info</returns>
         /// <remarks>Unless otherwise stated, costs, fees, prices, and volumes are in the asset pair's scale, not the currency's scale.
         ///Times given by trade tx ids are more accurate than unix timestamps.</remarks>
-        public async Task<JObject> API_GetTradesHistoryAsync(
+        public Task<JObject> API_GetTradesHistoryAsync(
             String type = null,
             Boolean? trades = null,
             DateTime? start = null,
@@ -280,7 +280,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             data.AddOptional("start", start.HasValue ? start.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             data.AddOptional("end", end.HasValue ? end.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             data.AddOptional("ofs", ofs);
-            return await CallPrivateKrakenApiAsync("TradesHistory", keys, data);
+            return CallPrivateKrakenApiAsync("TradesHistory", keys, data);
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="trades">whether or not to include trades related to position in output (optional.  default = false)</param>
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>associative array of trades info</returns>
-        public async Task<JObject> API_QueryTradesInfoAsync(
+        public Task<JObject> API_QueryTradesInfoAsync(
             IEnumerable<String> txid,
             Boolean? trades = null,
             AccountKeys keys = null)
@@ -298,7 +298,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             var data = new Dictionary<String, String>();
             data.AddOptional("txid", ConcatString(txid));
             data.AddOptional("trades", trades);
-            return await CallPrivateKrakenApiAsync("QueryTrades", keys, data);
+            return CallPrivateKrakenApiAsync("QueryTrades", keys, data);
         }
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="docals">whether or not to include profit/loss calculations (optional.  default = false)</param>
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>associative array of open position info</returns>
-        public async Task<JObject> API_GetOpenPositionsAsync(
+        public Task<JObject> API_GetOpenPositionsAsync(
             IEnumerable<String> txid,
             Boolean? docals = null,
             AccountKeys keys = null)
@@ -316,7 +316,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             var data = new Dictionary<String, String>();
             data.AddOptional("txid", ConcatString(txid));
             data.AddOptional("docals", docals);
-            return await CallPrivateKrakenApiAsync("OpenPositions", keys, data);
+            return CallPrivateKrakenApiAsync("OpenPositions", keys, data);
         }
 
 
@@ -337,7 +337,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>associative array of ledgers info</returns>
         /// <remarks>Times given by ledger ids are more accurate than unix timestamps.</remarks>
-        public async Task<JObject> API_GetLedgersInfoAsync(
+        public Task<JObject> API_GetLedgersInfoAsync(
             String aclass = null,
             IEnumerable<String> asset = null,
             String type = null,
@@ -353,7 +353,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             data.AddOptional("start", start.HasValue ? start.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             data.AddOptional("end", end.HasValue ? end.Value.ToUnixTimestamp() : (Double?)null, this.ExchangeCulture);
             data.AddOptional("ofs", ofs);
-            return await CallPrivateKrakenApiAsync("Ledgers", keys, data);
+            return CallPrivateKrakenApiAsync("Ledgers", keys, data);
         }
 
         /// <summary>
@@ -362,13 +362,13 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="id">sb of ledger ids to query info about (20 maximum)</param>
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>associative array of ledgers info</returns>
-        public async Task<JObject> API_QueryLedgersAsync(
+        public Task<JObject> API_QueryLedgersAsync(
             IEnumerable<String> id,
             AccountKeys keys = null)
         {
             var data = new Dictionary<String, String>();
             data.AddOptional("id", ConcatString(id));
-            return await CallPrivateKrakenApiAsync("QueryLedgers", keys, data);
+            return CallPrivateKrakenApiAsync("QueryLedgers", keys, data);
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
         /// <param name="keys">The account information. Uses 'DefaultAccountKeys' when null.</param>
         /// <returns>associative array</returns>
         /// <remarks>If an asset pair is on a maker/taker fee schedule, the taker side is given in "fees" and maker side in "fees_maker". For pairs not on maker/taker, they will only be given in "fees".</remarks>
-        public async Task<JObject> API_GetTradeVolumeAsync(
+        public Task<JObject> API_GetTradeVolumeAsync(
             IEnumerable<String> pair = null,
             Boolean? feeinfo = null,
             AccountKeys keys = null)
@@ -387,7 +387,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             var data = new Dictionary<String, String>();
             data.AddOptional("pair", ConcatString(pair));
             data.AddOptional("fee-info", feeinfo);
-            return await CallPrivateKrakenApiAsync("TradeVolume", keys, data);
+            return CallPrivateKrakenApiAsync("TradeVolume", keys, data);
         }
         #endregion
 
