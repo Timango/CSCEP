@@ -530,7 +530,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
 
         #region Core calls
 
-        private async Task<JObject> CallPrivateKrakenApiAsync
+        public async Task<JObject> CallPrivateKrakenApiAsync
             (string function, AccountKeys keys, Dictionary<String, String> data = null)
         {
             var account = keys ?? DefaultAccountKeys;
@@ -575,7 +575,7 @@ namespace Dauros.Timango.CSCEP.Exchanges
             return fullResult;
         }
 
-        private async Task<JObject> CallPublicKrakenAPIAsync
+        public async Task<JObject> CallPublicKrakenAPIAsync
             (string function, Dictionary<String, String> data = null)
         {
             string address = string.Format("{0}/0/public/{1}", ApiUrl, function);
