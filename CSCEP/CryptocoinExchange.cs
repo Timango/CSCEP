@@ -100,6 +100,12 @@ namespace Dauros.Timango.CSCEP
                 return result;
             }
         }
+
+        protected string ByteArrayToHexString(byte[] ba)
+        {
+            string hex = BitConverter.ToString(ba);
+            return hex.Replace("-", "");
+        }
         
         #endregion
         #endregion
