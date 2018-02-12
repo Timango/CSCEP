@@ -49,6 +49,8 @@
     <Compile Include="AccountInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BitfinexExchange.cs" />
+    <Compile Include="Exchanges\BittrexExchange.cs" />
     <Compile Include="CryptocoinExchange.cs" />
     <Compile Include="Exchanges\KrakenExchange.cs" />
     <Compile Include="Extensions.cs">

@@ -531,14 +531,14 @@ namespace Dauros.Timango.CSCEP.Exchanges
         #region Core calls
 
         public async Task<JObject> CallPrivateKrakenApiAsync
-            (string function, AccountKeys keys, Dictionary<String, String> data = null)
+            (string function, AccountKeys keys = null, Dictionary<String, String> data = null)
         {
             var account = keys ?? DefaultAccountKeys;
             if (account == null) throw new ArgumentNullException("accountKeys", "DefaultAccountKeys was not set and no keys were provided.");
             Stream reqStream = null;
             string path = string.Format("/0/private/{0}", function);
-            string address = ApiUrl + path;
-            HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(address);
+            string uri = ApiUrl + path;
+            HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
             webRequest.Headers.Add("API-Key", account.ApiKey);
